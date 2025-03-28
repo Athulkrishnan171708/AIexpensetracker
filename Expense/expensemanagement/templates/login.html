@@ -1,0 +1,163 @@
+{% load static %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Login</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        /* Background Styling */
+        body {
+            background: linear-gradient(135deg, #000000, #0fcadf);
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Login Container with Glassmorphism */
+        .login-container {
+            width: 350px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h2 {
+            color: #0fcadf;
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* Input Field Styling */
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            font-size: 14px;
+            color: #ddd;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        input:focus {
+            box-shadow: 0px 0px 8px rgba(15, 202, 223, 0.8);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Login Button */
+        .input-group input[type="submit"] {
+            background: #0fcadf;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .input-group input[type="submit"]:hover {
+            background: #0ba4bf;
+            transform: scale(1.05);
+        }
+
+        /* Register Link */
+        .register-link {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .register-link a {
+            color: #0fcadf;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Error Message */
+        #error-message {
+            color: red;
+            margin-bottom: 10px;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .login-container {
+                width: 90%;
+            }
+        }
+    </style>
+
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            let formData = new FormData(event.target);
+
+            fetch("{% url 'login' %}", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    document.getElementById("error-message").textContent = data.error;
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</head>
+<body>
+    <div class="login-container">
+        <form method="post" action="{% url 'login' %}" onsubmit="handleLogin(event)">
+            {% csrf_token %}
+            <h2>Login</h2>
+            <p id="error-message"></p>
+            <div class="input-group">
+                <label for="email">Email ID:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <div class="input-group">
+                <input type="submit" value="Login">
+            </div>
+            <p class="register-link">Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+        </form>
+    </div>
+</body>
+</html>

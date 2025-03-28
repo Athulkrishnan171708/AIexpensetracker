@@ -1,0 +1,115 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0; /* Remove default margin */
+    background-color: #f4f4f4; /* Light background for the body */
+}
+.container {
+    width: 80%;
+    max-width: 1200px; /* Set a maximum width for the container */
+    margin: auto;
+    text-align: center;
+    padding-left: 250px; /* Add padding to the left to avoid overlap with sidebar */
+    transition: padding-left 0.3s; /* Smooth transition for padding */
+}
+table {
+    width: 100%;
+    max-width: 800px; /* Set a maximum width for the table */
+    margin: 20px auto; /* Center the table */
+    border-collapse: collapse;
+    border-radius: 8px; /* Rounded corners */
+    overflow: hidden; /* Ensures rounded corners are visible */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+th, td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center; /* Center align text */
+}
+tr:nth-child(even) {
+    background-color: #f9f9f9; /* Light gray for even rows */
+}
+tr:hover {
+    background-color: #e2e2e2; /* Darker gray on hover */
+}
+/* Sidebar Styles */
+.sidebar {
+    position: fixed; /* Fixes the sidebar to the left */
+    left: 0; /* Aligns it to the left */
+    top: 0; /* Aligns it to the top */
+    width: 250px; /* Increased width of the sidebar */
+    height: 100%; /* Full height */
+    background-color: #000000; /* Background color */
+    color: white; /* Text color */
+    padding: 20px; /* Padding inside the sidebar */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5); /* Shadow effect */
+    overflow-y: auto; /* Scroll if content overflows */
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Stack items vertically */
+    justify-content: space-between; /* Space items evenly */
+}
+
+.sidebar h2 {
+    font-size: 18px; /* Font size for the heading */
+    margin-bottom: 15px; /* Space below the heading */
+}
+
+.sidebar ul {
+    list-style-type: none; /* Removes bullet points */
+    padding: 0; /* Removes padding */
+    flex-grow: 1; /* Allow the list to grow and fill available space */
+}
+
+.sidebar ul li {
+    margin: 15px 0; /* Increased space between list items */
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Center items vertically */
+    padding: 10px; /* Padding for each item */
+    border-radius: 5px; /* Rounded corners for items */
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+.sidebar ul li:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Light hover effect */
+}
+
+.sidebar ul li i {
+    margin-right: 10px; /* Space between icon and text */
+    font-size: 18px; /* Icon size */
+}
+
+.sidebar ul li a {
+    color: white; /* Link color */
+    text-decoration: none; /* Removes underline from links */
+    flex-grow: 1; /* Allow link to grow and fill available space */
+}
+
+.sidebar ul li a:hover {
+    text-decoration: underline; /* Underline on hover */
+    color: #ffcc00; /* Change color on hover */
+}
+
+/* Button to toggle sidebar */
+.toggle-button {
+    position: fixed; /* Fixed position */
+    left: 10px; /* Position from the left */
+    top: 10px; /* Position from the top */
+    background-color: #6a11cb; /* Button color */
+    color: white; /* Text color */
+    border: none; /* No border */
+    padding: 10px 15px; /* Padding */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    z-index: 1000; /* Ensure button is above other elements */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%; /* Full width on small screens */
+        height: auto; /* Auto height */
+        position: relative; /* Relative positioning */
+    }
+    .container {
+        padding-left: 0; /* Remove left padding on small screens */
+    }
+}

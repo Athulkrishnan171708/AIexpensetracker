@@ -1,0 +1,70 @@
+/* Modern and Attractive Form Styling */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #070707 0%, #000000 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Adjusted Container Width (60%) */
+.container {
+    width: 60%;
+    max-width: 500px; /* Keeps form from getting too wide */
+    background: rgb(0, 0, 0);
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    text-align: center; /* Centers everything */
+}
+
+/* Centering Labels */
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    text-align: center;
+    color: #34495e;
+}
+
+/* Adjusted Input Width (60%) */
+input[type="number"],
+input[type="date"],
+textarea,
+select {
+    width: 60%;
+    padding: 10px;
+    margin: 5px auto;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 16px;
+    display: block; /* Ensures proper centering */
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+    .container {
+        width: 90%;
+    }
+
+    input,
+    select,
+    textarea {
+        width: 80%;
+    }
+}
+
+

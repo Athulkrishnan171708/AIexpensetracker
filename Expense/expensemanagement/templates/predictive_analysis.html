@@ -1,0 +1,559 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predictive Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="{% static 'assets/css/nav.css' %}" type="text/css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{% static 'assets/css/style.css' %}" type="text/css" rel="stylesheet">
+
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #121212;
+            color: white;
+            margin: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .wrapper { 
+            display: flex;
+            position: relative;
+        }
+        
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #000000;
+            color: #fff;
+            padding: 20px;
+            position: fixed;
+            left: -250px;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-nav-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: #1a1a1a;
+            border: none;
+            color: #00D4FF;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+
+        .mobile-nav-toggle:hover {
+            background-color: #13bcde;
+            transform: scale(1.1);
+        }
+
+        /* Overlay for mobile menu */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            backdrop-filter: blur(5px);
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        /* Main Content */
+        .main-content { 
+            margin-left: 0;
+            padding: 20px;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.active + .main-content {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+        }
+
+        /* Container and Layout Styles */
+        .container {
+            width: min(1200px, 100%);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 1000px;
+            place-items: center;
+            margin: 20px 0;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        .events-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 30px auto;
+        }
+
+        .alert {
+            width: 100%;
+            max-width: 1000px;
+            margin: 20px auto;
+        }
+
+        .card h2, .card h3 {
+            color: #fff;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .event-input {
+            display: flex;
+            gap: 10px;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px auto;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* Alert Styles */
+        .alert {
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px auto;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .alert.red {
+            background: rgba(255, 87, 51, 0.15);
+            color: #FF5733;
+            border: 2px solid rgba(255, 87, 51, 0.3);
+        }
+
+        .alert.green {
+            background: rgba(76, 175, 80, 0.15);
+            color: #4CAF50;
+            border: 2px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .alert i {
+            font-size: 1.3rem;
+        }
+
+        /* Text Colors */
+        .green-text { 
+            color: #4CAF50; 
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .red-text { 
+            color: #FF5733; 
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* List Styles */
+        .styled-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .styled-list li {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .styled-list li:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .event-message {
+            cursor: pointer;
+            font-weight: 500;
+            color: #00D4FF;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background: rgba(0, 212, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .event-message:hover {
+            background: rgba(0, 212, 255, 0.2);
+        }
+
+        .events-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: none;
+        }
+
+        .events-list li {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .events-list li:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        .event-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 2px solid #00D4FF;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .event-input input:focus {
+            outline: none;
+            border-color: #008DB8;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .event-input input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .event-input button {
+            padding: 12px 25px;
+            background: #00D4FF;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 45px;
+        }
+
+        .event-input button:hover {
+            background: #008DB8;
+            transform: scale(1.05);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 15px;
+                padding-top: 80px;
+            }
+
+            .sidebar.active + .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .card, .events-container, .alert {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 10px;
+                padding-top: 70px;
+            }
+
+            .container {
+                padding: 5px;
+            }
+
+            .cards-grid {
+                gap: 15px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    <script>
+        // Add sidebar toggle functionality
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function toggleEvents() {
+            var eventList = document.getElementById("eventsList");
+            if (eventList.style.display === "none") {
+                eventList.style.display = "block";
+            } else {
+                eventList.style.display = "none";
+            }
+        }
+        function addEvent() {
+            var eventInput = document.getElementById("newEvent");
+            var eventList = document.getElementById("eventsList");
+            
+            if (eventInput.value.trim() !== "") {
+                var li = document.createElement("li");
+                li.textContent = eventInput.value;
+                eventList.appendChild(li);
+                eventInput.value = "";
+                eventList.style.display = "block"; 
+            }
+        }
+    </script>
+
+</head>
+<body>
+    <button class="mobile-nav-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="profile-icon">
+                <a href="{% url 'profile' %}"><i class="fas fa-user-circle"></i></a>
+            </div>
+            <ul>
+                <li><a href="{% url 'home' %}"><i class="fas fa-home"></i>  Home</a></li>
+                <li><a href="{% url 'groups' %}"><i class="fas fa-users"></i>  Groups</a></li>
+                <li><a href="{% url 'income' %}"><i class="fas fa-plus"></i>  Add Income</a></li>
+                <li><a href="{% url 'expense' %}"><i class="fas fa-minus"></i>  Add Expense</a></li>
+                <li><a href="{% url 'display_expenses' %}"><i class="fas fa-chart-bar"></i>  View Transactions</a></li>
+                <li><a href="{% url 'charts' %}"><i class="fas fa-chart-line"></i> Charts</a></li>
+                <li><a href="{% url 'predict_expenses' %}"><i class="fas fa-chart-pie"></i>  Predictive Analysis</a></li>
+                <li><a href="{% url 'logout' %}"><i class="fas fa-sign-in-alt"></i>Logout</a></li>
+            </ul>
+        </nav>
+        
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container">
+                <h1 class="title">💰 Future Expense Predictions</h1>
+
+                <div class="cards-grid">
+                    <div class="card">
+                        <h2>Predicted Next Month Expense</h2>
+                        <span class="{% if exceeding_budget %}red-text{% else %}green-text{% endif %}">
+                            ₹{{ predictions|floatformat:2 }}
+                        </span>
+                    </div>
+
+                    {% if exceeding_budget %}
+                        <div class="alert red">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Warning: Your expenses might exceed your monthly budget!
+                        </div>
+                    {% else %}
+                        <div class="alert green">
+                            <i class="fas fa-check-circle"></i>
+                            Good job! Your expenses are within budget.
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3>🚨 Anomalies Detected</h3>
+                        {% if anomalies %}
+                        <ul class="styled-list">
+                            {% for anomaly in anomalies %}
+                            <li>{{ anomaly.category }}: ₹{{ anomaly.amount }} on {{ anomaly.date }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                            <p>No unusual spending detected.</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="card">
+                        <h3>💡 Recommendations</h3>
+                        <ul class="styled-list">
+                            {% for recommendation in recommendations %}
+                            <li>{{ recommendation }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="events-container">
+                    {% if upcoming_events %}
+                    <p class="event-message" onclick="toggleEvents()">
+                        <i class="fas fa-calendar-alt"></i> Upcoming events ahead! Spend carefully.
+                    </p>
+                    <ul class="events-list" id="eventsList">
+                        {% for event in upcoming_events %}
+                        <li>
+                            <span>{{ event }}</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="event-message">
+                        <i class="fas fa-calendar-check"></i> No major events coming up.
+                    </p>
+                    {% endif %}
+                    <div class="event-input">
+                        <input type="text" id="newEvent" placeholder="Add a new event...">
+                        <button onclick="addEvent()" title="Add Event">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Category-Wise Breakdown</h3>
+                    <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
+                        <label class="switch">
+                            <input type="checkbox" id="toggleBreakdown">
+                            <span class="slider"></span>
+                        </label>
+                        <span style="margin-left: 10px;">Show Breakdown</span>
+                    </div>
+                    <div id="breakdownSection" style="display: none;">
+                        <div class="chart-container">
+                            <canvas id="breakdownChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    document.getElementById("toggleBreakdown").addEventListener("change", function () {
+                        document.getElementById("breakdownSection").style.display = this.checked ? "block" : "none";
+                    });
+
+                    const categories = [{% for category, amount in category_breakdown.items %}"{{ category }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+                    const categoryAmounts = [{% for category, amount in category_breakdown.items %}{{ amount }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+
+                    if (categories.length > 0) {
+                    const ctx = document.getElementById('breakdownChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: categories,
+                            datasets: [{
+                                data: categoryAmounts,
+                                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#FF9800'],
+                            }]
+                        },
+                        options: {
+                            responsive: true,   // Keep responsiveness
+                            maintainAspectRatio: true,  
+                            aspectRatio: 2,  // Adjust this value to make the chart smaller
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',  // Adjust legend position to save space
+                                }
+                            }
+                        }
+                    });
+                }
+                </script>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

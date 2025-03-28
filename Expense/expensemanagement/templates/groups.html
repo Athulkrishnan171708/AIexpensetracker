@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Groups</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-6">
+
+    <div class="max-w-2xl mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
+        <h2 class="text-3xl font-semibold mb-4 text-center">My Groups</h2>
+
+        {% if groups %}
+            <ul class="space-y-4">
+                {% for group in groups %}
+                    <li class="bg-gray-700 p-4 rounded-lg flex justify-between items-center">
+                        <span class="text-lg">{{ group.name }}</span>
+                        <a href="{% url 'view_group' group.id %}" 
+                           class="text-blue-400 hover:text-blue-300 transition">View</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-gray-400 text-center mt-4">You have not joined any groups yet.</p>
+        {% endif %}
+
+        <a href="{% url 'create_group' %}" 
+           class="block text-center bg-green-500 hover:bg-green-600 text-white py-2 rounded mt-4">
+            Create a New Group
+        </a>
+
+        <a href="{% url 'home' %}" class="block text-center text-blue-400 mt-4 hover:text-blue-300">
+            Back to Home
+        </a>
+    </div>
+
+</body>
+</html>

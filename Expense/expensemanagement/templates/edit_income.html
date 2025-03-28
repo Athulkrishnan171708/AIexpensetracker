@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Income</title>
+    <link href="{% static 'assets/css/style4.css' %}" type="text/css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fc;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #1d989c;
+        }
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgb(19, 18, 18);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            color: #f4f7fc;
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        textarea{
+            color: #f4f7fc;
+            background-color: #191b1b;
+        }
+
+        input[type="number"]{
+            background-color: #191b1b;
+            color: #f4f7fc;
+        }
+        input[type="text"], input[type="date"], select {
+            background-color: #191b1b;
+            color: #f4f7fc;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box; /* Ensures padding is included in width */
+        }
+        button {
+            background-color: #20cad0;
+            color: rgb(12, 12, 12);
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 30%;
+            margin-top: 10px; /* Adds space above the button */
+        }
+        button:hover {
+            background-color: #226a6d;
+        }
+        .cancel-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            text-decoration: none;
+            color: #db3434;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <h1>Edit Income Record</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="amount">Amount:</label>
+        <input type="text" id="amount" name="amount" value="{{ income.amount }}" required>
+        
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" value="{{ income.date }}" required>
+        
+        <label for="description">Description:</label>
+        <input type="text" id="description" name="description" value="{{ income.description }}">
+        
+        <label for="category">Category:</label>
+        <select id="category" name="category" required>
+            <option value="salary" {% if income.category == "salary" %}selected{% endif %}>Salary</option>
+            <option value="freelance" {% if income.category == "freelance" %}selected{% endif %}>Business</option>
+            <option value="investment" {% if income.category == "investment" %}selected{% endif %}>Investment</option>
+            <option value="rental" {% if income.category == "rental" %}selected{% endif %}>Rental</option>
+            <option value="other" {% if income.category == "other" %}selected{% endif %}>Other</option>
+            <!-- Add more categories as needed -->
+        </select>
+        
+        <button type="submit">Update Income</button>
+        <a href="{% url 'display_income' %}" class="cancel-link">Cancel</a>
+    </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,143 @@
+/* Static CSS for the Expense Tracker */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    background-color: #2e3a59;
+    color: #fff;
+    padding: 15px 0;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    text-align: center;
+}
+
+nav {
+    text-align: right;
+}
+
+a {
+    text-decoration: none;
+    color: #ffffff;
+    padding: 8px 16px;
+    background-color: #3498db;
+    border-radius: 5px;
+    margin: 0 10px;
+}
+
+a.btn {
+    background-color: #28a745;
+}
+
+a.btn-split {
+    background-color: #f39c12;
+}
+
+a:hover {
+    background-color: #2980b9;
+}
+
+main {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h2, h3, h4 {
+    color: #333;
+}
+
+ul.group-list, ul.expense-list {
+    list-style: none;
+    padding: 0;
+}
+
+.group-item, .expense-item {
+    padding: 10px;
+    background-color: #f1f1f1;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+input[type="text"], input[type="number"], input[type="email"] {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 100%;
+    font-size: 16px;
+}
+
+button {
+    padding: 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+input {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+.link {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    header {
+        padding: 10px 0;
+    }
+
+    a {
+        padding: 6px 12px;
+    }
+}

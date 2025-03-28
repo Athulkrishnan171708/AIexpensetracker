@@ -1,0 +1,586 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Income Charts</title>
+    <link href="{% static 'assets/css/nav.css' %}" type="text/css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #1f1d1d;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+    
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #000;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            left: -100%;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: none;
+            z-index: 1000;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .sidebar.active {
+            left: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+        }
+    
+        .profile-icon {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #1a9fba;
+            margin-bottom: 20px;
+        }
+
+        .profile-icon a i {
+            transition: transform 0.3s;
+        }
+
+        .profile-icon a i:hover {
+            transform: scale(1.1);
+        }
+    
+        .sidebar ul li a {
+            color: #ecf0f1;
+            text-decoration: none;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            transition: all 0.3s;
+            border-radius: 8px;
+            margin: 5px 0;
+        }
+    
+        .sidebar ul li a:hover {
+            background-color: #1a9fba;
+            transform: translateX(5px);
+        }
+    
+        .container {
+            margin-left: auto;
+            margin-right: auto;
+            padding: 20px;
+            transition: all 0.3s ease;
+            max-width: 1200px;
+            background: transparent;
+        }
+    
+        .container h1 {
+            color: #1a9fba;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+    
+        .filter-form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            padding: 20px;
+            background-color: #282828;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-form label {
+            color: #1a9fba;
+            font-weight: 500;
+            margin: 0 5px;
+            min-width: 100px;
+        }
+
+        .filter-form button[type="submit"] {
+            padding: 12px 25px;
+            border: none;
+            background-color: #0fcadf;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            min-width: 100px;
+            margin-top: 10px;
+        }
+
+        .filter-form button[type="submit"]:hover {
+            background-color: #1a81ae;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+    
+        select, .filter-dropdown {
+            background-color: #0ba4bf;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            min-width: 200px;
+            text-align: center;
+        }
+    
+        input[type="date"] {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 2px solid #0ba4bf;
+            background-color: #282828;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s;
+            min-width: 150px;
+            text-align: center;
+        }
+    
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #1a9fba;
+            box-shadow: 0 0 5px rgba(26,159,186,0.5);
+        }
+    
+        .chart-container {
+            width: 100%;
+            max-width: 1000px;
+            height: 500px;
+            background-color: #282828;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    
+        .chart-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+    
+        .chart-toggle button {
+            padding: 12px 25px;
+            border: none;
+            background-color: #0fcadf;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    
+        .chart-toggle button:hover {
+            background-color: #1a81ae;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+    
+        .navigation-buttons {
+            text-align: center;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+    
+        .navigation-buttons button {
+            padding: 12px 25px;
+            border: none;
+            background-color: #0fcadf;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+    
+        .navigation-buttons button:hover {
+            background-color: #1a81ae;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        /* Mobile Menu Button */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: #1a9fba;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+
+        .menu-toggle:hover {
+            background-color: #13bcde;
+            transform: scale(1.1);
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .sidebar {
+                width: 280px;
+                height: 100vh;
+                position: fixed;
+                left: -100%;
+                top: 0;
+                transition: 0.3s ease-in-out;
+                z-index: 1000;
+                overflow-y: auto;
+                box-shadow: none;
+                padding-top: 20px;
+            }
+
+            .sidebar.active {
+                left: 0;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+            }
+
+            .container {
+                margin-left: auto;
+                margin-right: auto;
+                padding: 15px;
+                padding-top: 80px;
+            }
+
+            .filter-form {
+                padding: 15px;
+                margin: 15px;
+            }
+
+            .filter-section {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            select, .filter-dropdown, input[type="date"] {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .filter-form label {
+                text-align: center;
+                width: 100%;
+            }
+
+            .filter-form button[type="submit"] {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            /* Overlay when sidebar is open */
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.7);
+                z-index: 999;
+                backdrop-filter: blur(5px);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .sidebar {
+                width: 85%;
+            }
+
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            .chart-container {
+                height: 300px;
+                padding: 10px;
+                margin: 10px auto;
+            }
+
+            .chart-toggle button {
+                width: 50px;
+                height: 50px;
+                font-size: 18px;
+            }
+
+            .menu-toggle {
+                top: 15px;
+                left: 15px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .filter-form {
+                padding: 10px;
+                margin: 10px;
+            }
+
+            .filter-form button[type="submit"] {
+                padding: 10px 20px;
+            }
+
+            .navigation-buttons {
+                flex-direction: column;
+                padding: 0 10px;
+            }
+
+            .navigation-buttons button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="profile-icon">
+            <a href="{% url 'profile' %}"><i class="fas fa-user-circle"></i></a>
+        </div>
+        <ul>
+            <li><i class="fas fa-home"></i><a href="{% url 'home' %}">Home</a></li>
+            <li><i class="fas fa-users"></i><a href="{% url 'groups' %}">Groups</a></li>
+            <li><i class="fas fa-plus"></i><a href="{% url 'income' %}">Add Income</a></li>
+            <li><i class="fas fa-minus"></i><a href="{% url 'expense' %}">Add Expense</a></li>
+            <li><i class="fas fa-chart-bar"></i><a href="{% url 'display_expenses' %}"> View Transactions</a></li>
+            <li><i class="fas fa-chart-line"></i><a href="{% url 'charts' %}">Charts</a></li>
+            <li><i class="fas fa-chart-pie"></i><a href="{% url 'predict_expenses' %}">Predictive Analysis</a></li>
+            <li><i class="fas fa-sign-in-alt"></i><a href="{% url 'login' %}">Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <h1 style="color: #0fcadf;">Income by Category</h1>
+        <div class="filter-form">
+            <form method="get" id="filterForm">
+                <div class="filter-section">
+                    <select id="date-range" class="filter-dropdown" onchange="updateDateRange()">
+                        <option value="all">All Incomes</option>
+                        <option value="today">Today</option>
+                        <option value="yesterday">Yesterday</option>
+                        <option value="pre_yesterday">Day Before Yesterday</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="year">This Year</option>
+                    </select>
+                </div>
+
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+                
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+                
+                <button type="submit">Filter</button>
+            </form>
+        </div>
+
+        <div class="navigation-buttons">
+            <button onclick="window.location.href='{% url 'charts' %}'">Income Charts</button>
+            <button onclick="window.location.href='{% url 'excharts' %}'">Expense Charts</button>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="incomeChart"></canvas>
+        </div>
+
+        <div class="chart-toggle">
+            <button id="barChartBtn"><i class="fas fa-chart-bar"></i></button>
+            <button id="pieChartBtn"><i class="fas fa-chart-pie"></i></button>
+        </div>
+    </div>
+
+    <script>
+        // Add sidebar toggle functionality
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Restore the previously selected filter from sessionStorage on page load
+        document.addEventListener("DOMContentLoaded", function(){
+            const savedFilter = sessionStorage.getItem('selectedIncomeFilter') || "";
+            document.getElementById('date-range').value = savedFilter;
+        });
+
+        const incomeData = JSON.parse('{{ income_data|escapejs }}');
+        const labels = incomeData.map(item => item.category);
+        const data = incomeData.map(item => item.total_amount);
+
+        function getRandomColor() {
+            return `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.6)`;
+        }
+
+        const backgroundColors = labels.map(() => getRandomColor());
+        const ctx = document.getElementById('incomeChart').getContext('2d');
+
+        let barChartConfig = {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Total Income by Category',
+                    data: data,
+                    backgroundColor: backgroundColors,
+                    borderColor: backgroundColors.map(color => color.replace('0.6', '1')),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        };
+
+        let pieChartConfig = {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: backgroundColors
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        };
+
+        let incomeChart = new Chart(ctx, barChartConfig);
+
+        function updateChart(type) {
+            incomeChart.destroy();
+            let newConfig = type === 'bar' ? barChartConfig : pieChartConfig;
+            incomeChart = new Chart(ctx, newConfig);
+        }
+
+        document.getElementById('barChartBtn').addEventListener('click', () => {
+            updateChart('bar');
+        });
+
+        document.getElementById('pieChartBtn').addEventListener('click', () => {
+            updateChart('pie');
+        });
+
+        // Update date range and store the selected filter, then auto-submit the form
+        function updateDateRange() {
+            const today = new Date();
+            let startDate, endDate;
+            const selection = document.getElementById('date-range').value;
+            
+            // Store the selected filter so it persists after reload
+            sessionStorage.setItem('selectedIncomeFilter', selection);
+
+            // Handle "All Incomes" case
+            if (selection === "all") {
+                // Set a very old date for start and today for end to show all records
+                startDate = new Date(2000, 0, 1); // January 1, 2000
+                endDate = new Date();
+            } else {
+                switch (selection) {
+                    case "today":
+                        startDate = endDate = today;
+                        break;
+                    case "yesterday":
+                        startDate = endDate = new Date(today.setDate(today.getDate() - 1));
+                        break;
+                    case "pre_yesterday":
+                        startDate = endDate = new Date(today.setDate(today.getDate() - 2));
+                        break;
+                    case "week":
+                        startDate = new Date(today.setDate(today.getDate() - today.getDay()));
+                        endDate = new Date();
+                        break;
+                    case "month":
+                        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                        endDate = new Date();
+                        break;
+                    case "year":
+                        startDate = new Date(today.getFullYear(), 0, 1);
+                        endDate = new Date();
+                        break;
+                    default:
+                        return;
+                }
+            }
+
+            document.getElementById('start_date').value = startDate.toISOString().split('T')[0];
+            document.getElementById('end_date').value = endDate.toISOString().split('T')[0];
+            document.getElementById('filterForm').submit();
+        }
+    </script>
+</body>
+</html>
